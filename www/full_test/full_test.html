@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Webserv Project Control Panel</title>
+    <style>
+        body { font-family: Arial, sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; background-color: #f4f4f9; padding: 20px; }
+        .container { background: white; padding: 40px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); text-align: center; }
+        h1 { color: #333; margin-bottom: 30px; }
+        .button-group { display: flex; flex-direction: column; gap: 15px; margin-top: 20px; }
+        .button { text-decoration: none; padding: 15px 30px; border-radius: 8px; font-size: 18px; font-weight: bold; color: white; transition: background-color 0.3s; cursor: pointer; border: none; }
+        .upload-btn { background-color: #007bff; }
+        .cgi-btn { background-color: #28a745; }
+        .gallery-btn { background-color: #dc3545; }
+        .upload-btn:hover { background-color: #0056b3; }
+        .cgi-btn:hover { background-color: #1e7e34; }
+        .gallery-btn:hover { background-color: #bd2130; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Webserv Feature Test Area</h1>
+        <p>Please select the function you want to test:</p>
+        <div class="button-group">
+            <a href="/upload">
+                <button class="button upload-btn">⬆ File Upload (POST)</button>
+            </a>
+            <a href="/calculator">
+                <button class="button cgi-btn">🧮 CGI Calculator (GET/POST)</button>
+            </a>
+            <a href="/gallery">
+                <button class="button gallery-btn">🗑 Uploads Gallery and Delete (GET/DELETE)</button>
+            </a>
+        </div>
+    </div>
+</body>
+</html>

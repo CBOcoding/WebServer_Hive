@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>File Upload</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Segoe UI', sans-serif;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  height: 100vh; text-align: center;
+  background: #f5f7fa;
+  position: relative;
+}
+
+/* --- Bottone base --- */
+.button {
+  border: none;
+  color: white;
+  padding: 12px 24px;
+  font-size: 15px;
+  margin: 4px 2px;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: background 0.2s;
+}
+.buttonGreen { background-color: #04AA6D; }
+.buttonBlue { background-color: #008CBA; }
+.buttonRed { background-color: #f44336; }
+.buttonRed:hover { background-color: #da190b; }
+
+/* --- Pulsante Back in alto a sinistra --- */
+.back-button {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  background-color: #555;
+  padding: 10px 20px;
+  font-size: 14px;
+}
+.back-button:hover {
+  background-color: #333;
+}
+
+h1 { margin-bottom: 1.5rem; }
+input[type="file"] { margin: 20px; }
+#message { margin-top: 20px; font-weight: bold; }
+.delete-form { margin-top: 10px; }
+</style>
+</head>
+
+<body>
+  <button class="button back-button" onclick="goBack()">⬅ Back</button>
+  <h1>Upload Your File 📁</h1>
+
+  <form id="uploadForm">
+    <input type="file" id="fileInput" name="file" required>
+    <button type="submit" class="button buttonGreen">Upload</button>
+  </form>
+
+  <p>Supported formats: .html, .css, .js, .txt, .jpg, .png, .gif, .ico, .pdf</p>
+  <p>Max size: 100 MB</p>
+
+  <div id="message"></div>
+  <div id="deleteContainer"></div>
+
+<script>
+function goBack() {
+  if (document.referrer) {
+    window.history.back();
+  } else {
+    window.location.href = './';
+  }
+}
+
+function createDeleteButton(filename) {
+  const deleteContainer = document.getElementById("deleteContainer");
+  
+
+  const form = document.createElement("form");
+  form.className = "delete-form";
+  form.id = `deleteForm-${filename}`; 
+  form.innerHTML = `
+    <label>Filename: </label>
+    <input type="text" value="${filename}" readonly>
+    <button type="submit" class="button buttonRed">Delete</button>
+  `;
+  
+  
+  deleteContainer.appendChild(form);
+
+  form.addEventListener("submit", async function(e) {
+    e.preventDefault();
+    
+    console.log(`Sending DELETE request for: /uploads/${encodeURIComponent(filename)}`);
+    
+    try {
+      const response = await fetch(`/uploads/${encodeURIComponent(filename)}`, {
+        method: "DELETE"
+      });
+      
+      const message = document.getElementById("message");
+      if (response.status === 204) {
+        message.textContent = `✅ File ${filename} deleted successfully`;
+        form.remove(); 
+        if (!deleteContainer.hasChildNodes()) {
+          message.textContent += " (No more files to delete)";
+        }
+      } else {
+        message.textContent = `❌ Error deleting file: ${response.status} ${response.statusText}`;
+      }
+    } catch (err) {
+      document.getElementById("message").textContent = `⚠️ Delete failed: ${err}`;
+    }
+  });
+}
+
+document.getElementById("uploadForm").addEventListener("submit", async function(e) {
+  e.preventDefault();
+
+  const fileInput = document.getElementById("fileInput");
+  if (!fileInput.files.length) {
+    alert("Select a file first!");
+    return;
+  }
+
+  const file = fileInput.files[0];
+  const message = document.getElementById("message");
+  
+  
+  const allowedExtensions = ['.html', '.css', '.js', '.txt', '.jpg', '.png', '.gif', '.ico', '.pdf'];
+  const fileExt = file.name.substring(file.name.lastIndexOf('.')).toLowerCase();
+  if (!allowedExtensions.includes(fileExt)) {
+    message.textContent = `❌ Unsupported file format: ${fileExt}`;
+    return;
+  }
+
+ 
+  if (file.size > 100 * 1024 * 1024) {
+    message.textContent = `❌ File size exceeds 100 MB`;
+    return;
+  }
+
+  try {
+    const response = await fetch(`/uploads/${encodeURIComponent(file.name)}`, {
+      method: "POST",
+      body: file,
+      headers: {
+        "Content-Type": "application/octet-stream",
+        "Content-Disposition": `attachment; filename="${encodeURIComponent(file.name)}"`
+      }
+    });
+
+    if (response.status === 201) {
+      message.textContent = `✅ Uploaded: ${file.name} (${response.status} ${response.statusText})`;
+      createDeleteButton(file.name); 
+    } else {
+      message.textContent = `❌ Error: ${response.status} ${response.statusText}`;
+    }
+  } catch (err) {
+    message.textContent = `⚠️ Upload failed: ${err}`;
+  }
+});
+</script>
+</body>
+</html>

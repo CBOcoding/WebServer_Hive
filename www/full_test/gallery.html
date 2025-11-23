@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Uploads Gallery & Delete</title>
+    <style>
+        /* Önceki stilleri koruyun ve tablo stilini ekleyin */
+        body { font-family: 'Segoe UI', sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; background-color: #f4f4f9; padding: 20px; }
+        .container { background: white; padding: 40px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); text-align: center; }
+        h1 { color: #dc3545; margin-bottom: 30px; }
+        #message { margin-bottom: 20px; color: #dc3545; font-weight: bold; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 12px; border: 1px solid #ddd; text-align: left; }
+        th { background-color: #f2f2f2; }
+        .delete-btn { background-color: #dc3545; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; transition: background-color 0.3s; }
+        .delete-btn:hover { background-color: #c82333; }
+        #backButton { position: absolute; top: 20px; left: 20px; background-color: #555; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; text-decoration: none; }
+    </style>
+</head>
+<body>
+    <a href="/">
+        <button id="backButton">⬅ Back to Main Page</button>
+    </a>
+    <div class="container">
+        <h1>🗑 Uploads Gallery and Delete Test</h1>
+        <p>This page tests the **GET** (listing) and **DELETE** (file removal) methods.</p>
+        <div id="message"></div>
+
+        <table id="fileListTable">
+            <thead>
+                <tr>
+                    <th>File Name</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td colspan="2">Loading files...</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+<script>
+    const UPLOADS_ENDPOINT = "/uploads";
+    const tableBody = document.getElementById("fileListTable").querySelector("tbody");
+    const messageDiv = document.getElementById("message");
+
+    async function fetchFiles() {
+        tableBody.innerHTML = '<tr><td colspan="2">Fetching file list...</td></tr>';
+        messageDiv.textContent = "";
+
+        try {
+            const response = await fetch(UPLOADS_ENDPOINT);
+
+            if (!response.ok) {
+                tableBody.innerHTML = `<tr><td colspan="2">Error loading directory list: ${response.status} ${response.statusText}. (Directory Listing might be disabled)</td></tr>`;
+                return;
+            }
+
+            const text = await response.text();
+            const fileNames = text.split('\n').filter(name => name.trim() !== '');
+
+            if (fileNames.length === 0) {
+                 tableBody.innerHTML = '<tr><td colspan="2">No files uploaded yet.</td></tr>';
+                 return;
+            }
+
+            tableBody.innerHTML = '';
+
+            fileNames.forEach(fileName => {
+                if (fileName.includes("empty.txt") || fileName.endsWith('/')) return;
+
+                const row = tableBody.insertRow();
+                row.insertCell().textContent = fileName;
+
+                const actionCell = row.insertCell();
+                const deleteBtn = document.createElement('button');
+                deleteBtn.textContent = 'Delete';
+                deleteBtn.className = 'delete-btn';
+                deleteBtn.onclick = () => deleteFile(fileName);
+                actionCell.appendChild(deleteBtn);
+            });
+
+        } catch (error) {
+            tableBody.innerHTML = `<tr><td colspan="2">Network error or failed to connect: ${error}</td></tr>`;
+        }
+    }
+
+    async function deleteFile(fileName) {
+        if (!confirm(`Are you sure you want to delete ${fileName}?`)) return;
+
+        messageDiv.textContent = `Attempting to delete ${fileName}...`;
+
+        try {
+            const response = await fetch(`${UPLOADS_ENDPOINT}/${fileName}`, {
+                method: 'DELETE'
+            });
+
+            if (response.ok) {
+                messageDiv.textContent = `${fileName} deleted successfully. (Status: ${response.status})`;
+                fetchFiles();
+            } else {
+                messageDiv.textContent = `Error deleting ${fileName}: ${response.status} ${response.statusText}`;
+            }
+        } catch (error) {
+            messageDiv.textContent = `⚠️ DELETE failed: ${error}`;
+        }
+    }
+
+    window.onload = fetchFiles;
+</script>
+</body>
+</html>

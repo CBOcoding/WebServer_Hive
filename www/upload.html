@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Webserv Upload</title>
+<style>
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+body {
+  font-family: 'Segoe UI', sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  padding: 2rem;
+  text-align: center;
+}
+.button {
+  border: none;
+  color: white;
+  padding: 15px 32px;
+  text-align: center;
+  font-size: 16px;
+  margin: 4px 2px;
+  cursor: pointer;
+}
+.buttonGreen { background-color: #04AA6D; }
+.buttonBlue  { background-color: #008CBA; }
+input[type="file"] {
+  margin: 20px;
+}
+#message {
+  margin-top: 20px;
+  font-weight: bold;
+}
+</style>
+</head>
+
+<body>
+  <h1>Upload your file 🌐</h1><br><br>
+
+ 
+  <form id="uploadForm">
+    <input type="file" id="fileInput" name="file" required />
+    <button type="submit" class="button buttonGreen">Upload</button>
+  </form>
+
+  <p>Supported formats: .html, .css, .js, .txt, .jpg, .png, .gif, .ico, .pdf</p>
+  <p>Maximum size: 100 MB per file</p>
+
+  <div id="message"></div>
+
+<script>
+document.getElementById("uploadForm").addEventListener("submit", async function(e) {
+  e.preventDefault(); 
+
+  const fileInput = document.getElementById("fileInput");
+  if (!fileInput.files.length) return alert("Select a file first!");
+
+  const file = fileInput.files[0];
+  const formData = new FormData();
+  formData.append("file", file);
+
+  try {
+	const response = await fetch("/uploads/" + file.name, {
+  method: "POST",
+  body: file,
+  headers: {
+    "Content-Type": "application/octet-stream",
+    "Content-Disposition": `attachment; filename="${file.name}"`
+  }
+});
+
+
+    const message = document.getElementById("message");
+    if (response.ok)
+      message.textContent = `Uploaded: ${file.name} (${response.status} ${response.statusText})`;
+    else
+      message.textContent = ` Error: ${response.status} ${response.statusText}`;
+  } catch (err) {
+    document.getElementById("message").textContent = "⚠️ Upload failed: " + err;
+  }
+});
+</script>
+</body>
+</html>
+

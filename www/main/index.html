@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Webserv Home</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background-color: #f5f7fa;
+    color: #333;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    margin: 0;
+  }
+  h1 { margin-bottom: 1rem; }
+  p { margin-bottom: 2rem; }
+  .button {
+    background-color: #007bff;
+    border: none;
+    color: white;
+    padding: 12px 24px;
+    margin: 8px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1rem;
+  }
+  .button:hover { background-color: #0056b3; }
+</style>
+</head>
+<body>
+  <h1>Welcome to Webserv</h1>
+  <p>Your C++ web server is up and running!</p>
+
+  <button class="button" onclick="location.href='/upload'">Go to Upload Page</button>
+  <button class="button" onclick="location.href='/images'">Open Images Folder</button>
+  <button class="button" onclick="location.href='/cgi-bin/hello.py'">Run hello.py (CGI)</button>
+  <button class="button" onclick="location.href='/cgi-bin/echo.py?name=Alice'">Run echo.py (GET)</button>
+
+  <form action="/cgi-bin/echo.py" method="POST" style="margin-top: 20px;">
+    <input type="text" name="name" placeholder="Enter your name">
+    <button class="button" type="submit">Send via POST</button>
+  </form>
+
+  <p>Tip: You can also test uploads via terminal:<br>
+  <code>curl -v -X POST -H "Content-Type: text/plain" --data-binary "Hello" http://localhost:8080/uploads/</code></p>
+</body>
+</html>

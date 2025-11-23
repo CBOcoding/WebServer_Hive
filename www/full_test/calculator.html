@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CGI Calculator</title>
+    <style>
+        body { font-family: Arial, sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; background-color: #f4f4f9; position: relative; }
+        .container { background: white; padding: 40px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); text-align: center; }
+        h1 { color: #28a745; margin-bottom: 20px; }
+        form { display: flex; flex-direction: column; align-items: center; gap: 15px; }
+        input[type="number"], select { padding: 10px; border: 1px solid #ccc; border-radius: 5px; width: 100%; max-width: 200px; }
+        button { background-color: #28a745; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; transition: background-color 0.3s; }
+        button:hover { background-color: #1e7e34; }
+
+        /* Geri Butonu Stili */
+        #backButton {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background-color: #555;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: background-color 0.3s;
+        }
+        #backButton:hover {
+            background-color: #333;
+        }
+    </style>
+</head>
+<body>
+    <a href="/">
+        <button id="backButton">⬅ Back to Main Page</button>
+    </a>
+    <div class="container">
+        <h1>🧮 Integer CGI Calculator</h1>
+        <p>The calculation will be handled by the CGI script (`/cgi-bin/calculator.py`).</p>
+
+        <form method="POST" action="/cgi-bin/calculator.py">
+
+            <input type="number" name="num1" placeholder="First Number" required>
+
+            <select name="operation" required>
+                <option value="add">Add (+)</option>
+                <option value="subtract">Subtract (-)</option>
+                <option value="multiply">Multiply (*)</option>
+                <option value="divide">Divide (/)</option>
+            </select>
+
+            <input type="number" name="num2" placeholder="Second Number" required>
+
+            <button type="submit">Calculate</button>
+        </form>
+    </div>
+</body>
+</html>
